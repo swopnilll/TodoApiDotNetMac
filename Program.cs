@@ -1,7 +1,23 @@
+using System.Data;
+using EmployeeManagementSystemApi.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register the SQL connection as a scoped service
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register DataContextDapper
+builder.Services.AddScoped<DataContextDapper>();
+
+// Register EF Core
+builder.Services.AddDbContext<DataContextEf>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ✅ Add controllers
 builder.Services.AddControllers();
 
 // Enable API Versioning
@@ -44,7 +60,9 @@ if (app.Environment.IsDevelopment())
     app.UseCors("DevCors");
     app.UseSwagger();
     app.UseSwaggerUI();
-} else {
+}
+else
+{
     app.UseCors("ProdCors");
     app.UseHttpsRedirection();
 }

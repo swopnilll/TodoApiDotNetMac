@@ -1,3 +1,5 @@
+using EmployeeManagementSystemApi.Data;
+using EmployeeManagementSystemApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeManagementSystemApi.Controllers
@@ -8,14 +10,17 @@ namespace EmployeeManagementSystemApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly DataContextDapper _dataContextDapper;
+        private readonly DataContextEf _dataContextEFCore;
 
-        public UserController(IConfiguration configuration)
+        public UserController(DataContextDapper dataContextDapper, DataContextEf dataContextEFCore)
         {
-            _dataContextDapper = new DataContextDapper(configuration);
+            _dataContextDapper = dataContextDapper;
+
+            _dataContextEFCore = dataContextEFCore;
         }
 
-        [HttpGet("TestConnection")]
-        public ActionResult<DateTime> TestConnection()
+        [HttpGet("TestConnectionDapper")]
+        public ActionResult<DateTime> TestConnectionDapper()
         {
             try
             {
@@ -26,6 +31,20 @@ namespace EmployeeManagementSystemApi.Controllers
                 return StatusCode(500, $"Error: {ex.Message}");
             }
         }
+
+        [HttpGet("TestConnectionEFCore")]
+        public ActionResult<IEnumerable<User>> TestConnectionEFCore()
+        {
+            try
+            {
+                return Ok(_dataContextEFCore.Users.ToList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+
 
         [HttpGet("GetUsers")]
         public ActionResult<string> GetUsers([FromQuery] string testValue)

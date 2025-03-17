@@ -1,31 +1,30 @@
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Dapper;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 
-namespace EmployeeManagementSystemApi {
-    public class DataContextDapper {
+namespace EmployeeManagementSystemApi.Data
+{
+    public class DataContextDapper
+    {
+        private readonly IDbConnection _connection;
 
-        private readonly IConfiguration _configuration;
-
-        public DataContextDapper(IConfiguration configuration) {
-            _configuration = configuration;
+        public DataContextDapper(IDbConnection connection)
+        {
+            _connection = connection;
         }
 
-        public IEnumerable<T> LoadData<T>(string sql) {
-            using IDbConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            return connection.Query<T>(sql);
+        public IEnumerable<T> LoadData<T>(string sql)
+        {
+            return _connection.Query<T>(sql);
         }
 
-        public T LoadDataSingle<T>(string sql) {
-            using IDbConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            return connection.QuerySingle<T>(sql);
+        public T LoadDataSingle<T>(string sql)
+        {
+            return _connection.QuerySingle<T>(sql);
         }
 
-        public bool ExecuteSql(string sql) {
-            using IDbConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            return connection.Execute(sql) > 0;
+        public bool ExecuteSql(string sql)
+        {
+            return _connection.Execute(sql) > 0;
         }
     }
 }
